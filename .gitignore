@@ -1,0 +1,21 @@
+# Raw data (too large for git; see README for download links)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Environment and local DB
+.env
+*.db
+*.sqlite3
+
+# Editors / OS
+.vscode/
+.DS_Store
+node_modules/
