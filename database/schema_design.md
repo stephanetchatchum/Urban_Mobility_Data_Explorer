@@ -14,3 +14,9 @@ Table Name: rate_codes
 Columns: rate_code_id(primary key, integer), description(text)
 
 we keep code 99 so those trips can load under the foreign key
+
+Table Name: trips
+Columns: trip_id(primary key, integer), pickup_datetime(datetime{ISO format}), dropoff_datetime(datetime{ISO format}), passenger_count(integer), trip_distance(decimal),
+pickup_zone_id(foreign key to zones.location_id, integer), dropoff_zone_id(foreign key to zones.location_id, integer), rate_code_id(foreign key to rate_codes.rate_code_id, integer), payment_type_id(foreign key to payment_types.payment_type_id, integer), fare_amount(decimal), total_amount(decimal), duration_min(decimal, dropoff - pickupt, in mins), speed_mph(decimal, distance/duration in hours), min_per_mile(decimal, duration/distance), fare_per_min(decimal, fare/duration) 
+
+we dropped congestion_surcharge column because it is almost empty, we also dropped tip_amount, extra, mta_tax, tolls_amount, improvement_surcharge, and store_and_fwd_flag because they donot connect to the story. 
