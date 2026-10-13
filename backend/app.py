@@ -27,6 +27,9 @@ def trips():
     min_distance = request.args.get("min_distance", default=None, type=float)
     max_distance = request.args.get("max_distance", default=None, type=float)
 
+    min_fare = request.args.get("min_fare", default=None, type=float)
+    max_fare = request.args.get("max_fare", default=None, type=float)
+
     page = max(page, 1)
     per_page = min(max(per_page, 1), 200)
 
@@ -42,6 +45,14 @@ def trips():
     if max_distance is not None:
         conditions.append("trip_distance <= %s")
         values.append(max_distance)
+
+    if min_fare is not None:
+        conditions.append("fare_amount >= %s")
+        values.append(min_fare)
+
+    if max_fare is not None:
+        conditions.append("fare_amount <= %s")
+        values.append(max_fare)
 
     where_sql = ""
     if conditions:
