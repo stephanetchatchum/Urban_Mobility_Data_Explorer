@@ -24,15 +24,38 @@ def trips():
     page = request.args.get("page",default=1, type=int)
     per_page = request.args.get("per_page", default=50, type=int)
 
+    min_distance = request.args.get("min_distance", default=None, type=float)
+    max_distance = request.args.get("max_distance", default=None, type=float)
+
     page = max(page, 1)
     per_page = min(max(per_page, 1), 200)
 
     offset = (page-1)*per_page
 
+    conditions = []
+    values = []
+
+    if min_distance is not None:
+        conditions.append("trip_distance >= %s")
+        values.append(min_distance)
+
+    if max_distance is not None:
+        conditions.append("trip_distance <= %s")
+        values.append(max_distance)
+
+    where_sql = ""
+    if conditions:
+        where_sql = "WHERE " + " AND ".join(conditions) + " "
+
+    values.append(per_page)
+    values.append(offset)
+
+    sql = ("SELECT trip_id, pickup_datetime, trip_distance, fare_amount, speed_mph ""FROM trips " + where_sql + "ORDER BY trip_id LIMIT %s OFFSET %s")
+
     connect = get_connection()
     cursor = connect.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT trip_id, pickup_datetime, trip_distance, fare_amount, speed_mph ""FROM trips ""ORDER BY trip_id ""LIMIT %s OFFSET %s", (per_page,offset),)
+        cursor.execute(sql, tuple(values))
         rows = cursor.fetchall()
         return jsonify(rows)
     finally:
