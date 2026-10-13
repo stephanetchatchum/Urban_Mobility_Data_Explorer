@@ -1,0 +1,181 @@
+/* Basic page style */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #172033;
+    line-height: 1.6;
+}
+
+.container {
+    width: 92%;
+    max-width: 1100px;
+    margin: auto;
+}
+
+/* Header */
+.page-header,
+.page-footer {
+    background: #172033;
+    color: white;
+    padding: 25px 0;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+}
+
+.subtitle {
+    color: #dbeafe;
+}
+
+.eyebrow {
+    color: #2563eb;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+/* Dashboard sections */
+main {
+    padding-top: 25px;
+    padding-bottom: 25px;
+}
+
+.panel {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+h2 {
+    margin-bottom: 12px;
+}
+
+.section-description,
+.help-text,
+.metric-note {
+    color: #64748b;
+    font-size: 0.9rem;   
+}
+
+/* Summary cards */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.trust-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.metric-card,
+.trust-card {
+    background: #f8fafc;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.metric-value {
+    color: #2563eb;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* Filters */
+.filter-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
+
+select,
+button {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+}
+
+button {
+    cursor: pointer;
+}
+
+.button-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.button-secondary {
+    background: #e2e8f0;
+}
+
+/* Charts and zones table */
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.chart-area {
+    min-height: 180px;
+    padding: 20px;
+    background: #f8fafc;
+    border: 1px dashed #94a3b8;
+    text-align: center;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th,
+td {
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Footer and smaller screens */
+.page-footer{
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .summary-grid,
+    .trust-grid {
+        grid-template-columns: 1fr;
+    }
+    .filter-grid {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .page-header h1 {
+        font-size: 1.6rem;
+    }
+}
