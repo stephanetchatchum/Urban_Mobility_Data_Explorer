@@ -14,6 +14,7 @@ def zones():
     try:
         cursor.execute("SELECT location_id, borough, zone, service_zone FROM zones")
         rows = cursor.fetchall()
+
         return jsonify(rows)
     finally:
         cursor.close()
@@ -83,6 +84,13 @@ def trips():
     try:
         cursor.execute(sql, tuple(values))
         rows = cursor.fetchall()
+        for row in rows:
+            for column in ("trip_distance", "fare_amount", "speed_mph"):
+                if row[column] is not None:
+                    row[column] = float(row[column])
+            if row["pickup_datetime"] is not None:
+                row["pickup_datetime"]= row["pickup_datetime"].strftime("%Y-%m-%d %H:%M:%S")
+                
         return jsonify(rows)
     finally:
         cursor.close()
