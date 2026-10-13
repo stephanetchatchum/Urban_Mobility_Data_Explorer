@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Mobility Data Explorer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="page-header">
+        <div class="container">
+            <p class="eyebrow">NYC TAXI DATA . JANUARY 2019</p>
+            <h1>Urban Mobility Explorer</h1>
+            <p class="subtitle">
+                What does slow traffic cost NYC Taxi riders, and how much can we trust the numbers?
+            </p>
+        </div>
+    </header>
+
+
+    <main class="container">
+        <section class="panel" aria-labelledby="overview-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">THE BIG PICTURE</p>
+                    <h2 id="overview-title">Trip Overview</h2>
+                </div>
+                <span id="connection-status" class="status">Waiting for backend</span>
+            </div>
+
+
+            <div class="summary-grid">
+                <article class="metric-card">
+                    <h3>Trips Analyzed</h3>
+                    <p id="total-trips" class="metric-value">—</p>
+                    <p class="metric-note">Trips returned by the data service</p>
+                </article>
+
+                <article class="metric-card">
+                    <h3>Median Speed</h3>
+                    <p id="median-speed" class="metric-value">—</p>
+                    <p class="metric-note">Miles per hour</p>
+                </article>
+
+
+            <article class="metric-card">
+                   <h3>Excluded Trips</h3>
+                   <p id="excluded-trips" class="metric-value">—</p>
+                   <p class="metric-note">Records excluded by cleaning rules</p>
+            </article>
+         </div>
+     </section>
+
+
+     <section class="panel" aria-labelledby="filters-title">
+            <p class="eyebrow">EXPLORE THE DATA</p>
+            <h2 id="filters-title">Filters</h2>
+
+            <form id="filter-form" class="filter-grid">
+                <div class="form-group">
+                    <label for="hour-filter">Hour of day</label>
+                    <select id="hour-filter" name="hour">
+                        <option value="all">All hours</option>
+                        <option value="0">12 AM</option>
+                        <option value="1">1 AM</option>
+                        <option value="2">2 AM</option>
+                        <option value="3">3 AM</option>
+                        <option value="4">4 AM</option>
+                        <option value="5">5 AM</option>
+                        <option value="6">6 AM</option>
+                        <option value="7">7 AM</option>
+                        <option value="8">8 AM</option>
+                        <option value="9">9 AM</option>
+                        <option value="10">10 AM</option>
+                        <option value="11">11 AM</option>
+                        <option value="12">12 PM</option>
+                        <option value="13">1 PM</option>
+                        <option value="14">2 PM</option>
+                        <option value="15">3 PM</option>
+                        <option value="16">4 PM</option>
+                        <option value="17">5 PM</option>
+                        <option value="18">6 PM</option>
+                        <option value="19">7 PM</option>
+                        <option value="20">8 PM</option>
+                        <option value="21">9 PM</option>
+                        <option value="22">10 PM</option>
+                        <option value="23">11 PM</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="data-version">Data version</label>
+                    <select id="data-version" name="version">
+                        <option value="cleaned">Cleaned data</option>
+                        <option value="raw">Raw data</option>
+                    
+                    </select>        
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="button button-primary">
+                        Apply Filters
+                    </button>
+                    <button type="reset" id="reset-filters" class="button button-secondary">
+                        Reset
+                    </button>
+                </div>
+            </form>
+
+            <p id="filter-message" class="help-text" aria-live="polite">
+                choose filters, and apply them to the available data
+            </p>
+        </section>
+
+        
+        <section class="panel" aria-labelledby="hourly-title">
+             <p class="eyebrow">MAIN ANALYSIS</p>
+             <h2 id="hourly-title">The Price of Slowness</h2>
+
+             <p class="section-description">
+                  Compare median minutes per mile, effective speed, and fare per minute across hours and pickup zones.
+             </p>
+
+             <div class="chart-legend">
+                <span>Minutes per mile</span>
+                <span>Median speed (mph)</span>
+                <span>Fare per minute</span>
+             </div>
+
+             <div id="hourly-chart" class="chart-area" role="status" aria-live="polite">
+                 Hourly analysis will appear when the backend is connected.
+             </div>
+
+             <p class="help-text">
+                 Zone-hour results should only be shown when at least 30 trips
+                 support the result. The backend must apply this rule.
+             </p>
+        </section>
+    
+
+        <div id="hourly-chart" class="chart-area" role="status" aria-live="polite">
+                Hourly analysis will appear when the backend is connected.
+            </div>
+
+            <p class="help-text">
+                Zone-hour results should only be shown when at least 30 trips
+                support the result. The backend must apply this rule.
+            </p>
+        </section>
+
+        <section class="panel" aria-labelledby="zones-title">
+            <p class="eyebrow">LOCATION ANALYSIS</p>
+            <h2 id="zones-title">Slowest Taxi Zones</h2>
+            <p class="section-description">
+                Compare slow zones alongside the number of trips supporting each ranking.
+            </p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Rank</th>
+                            <th scope="col">Pickup zone</th>
+                            <th scope="col">Median speed (mph)</th>
+                            <th scope="col">Supporting trips</th>
+                        </tr>
+                    </thead>
+                    <tbody id="zone-results">
+                        <tr>
+                            <td colspan="4">Zone rankings will appear when the data is available.</td>
+                      </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel" aria-labelledby="trust-title">
+            <p class="eyebrow">DATA TRANSPARENCY</p>
+            <h2 id ="trust-title">Can we Trust the Data?</h2>
+            <p class="section-description">
+                Compare raw and cleaned results and understand why records were excluded from particular metrics.
+            </p>
+
+            <div class="trust-grid">
+                <article class="trust-card">
+                   <h3>Data Quality</h3>
+                   <p id="quality-summary">Waiting for Data-quality information</p>
+                </article> 
+                
+                <article class="trust-card">
+                    <h3>Exclusion Reasons</h3>
+                    <ul id="exclusion-reasons">
+                        <li>Exclusion Details will appear when provided by the API.</li>
+                    </ul>
+                </article>
+            </div>
+
+            <p class="help-text">
+                Negative  fares, invalid durations, impossible speeds, and out-of-range dates should be handled according to the team's documented cleaning rules.
+            </p>
+        </section>
+
+        
+        <p id="page-message"  class="page-message"  role="status"  aria-live="polite">
+            The dashboard is ready for backend integration.
+        </p>
+    </main>
+
+
+    <footer class="page-footer">
+        <div class="container">
+            <p>Urban Mobility Data Explorer . NYC Taxi Trips. January 2019</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
