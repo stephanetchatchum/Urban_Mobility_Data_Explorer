@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from backend.db import get_connection
+from backend.algorithms.custom_algorithm import MinHeap
 
 app = Flask(__name__)
 
@@ -90,11 +91,42 @@ def trips():
                     row[column] = float(row[column])
             if row["pickup_datetime"] is not None:
                 row["pickup_datetime"]= row["pickup_datetime"].strftime("%Y-%m-%d %H:%M:%S")
-                
+
         return jsonify(rows)
     finally:
         cursor.close()
         connect.close()
+
+@app.route("/api/zones/slowest")
+def slowest_zones():
+    k = request.args.get("k", default=10, type=int)
+    min_trips = request.args.get("min_trips", default=30, type=int)
+
+    k = min(max(k, 1), 50)
+    min_trips = max(min_trips, 1)
+
+    connect = get_connection()
+    cursor = connect.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT z.zone AS zone, AVG(t.speed_mph) AS avg_speed ""FROM trips t JOIN zones z ON t.pickup_zone_id = z.location_id ""GROUP BY t.pickup_zone_id, z.zone ""HAVING COUNT(*) >= %s", (min_trips,))
+        rows = cursor.fetchall()
+    finally:
+        cursor.close()
+        connect.close()
+
+    heap = MinHeap()
+    for row in rows:
+        if row["avg_speed"] is not None:
+            heap.push((float(row["avg_speed"]), row["zone"]))
+
+    slowest = []
+    for _ in range(k):
+        item = heap.pop()
+        if item is None:
+            break
+        slowest.append({"zone": item[1], "avg_speed": round(item[0], 2)})
+
+    return jsonify(slowest)
 
 if __name__ == "__main__":
     app.run(debug=True)
