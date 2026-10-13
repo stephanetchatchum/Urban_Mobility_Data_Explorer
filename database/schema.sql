@@ -35,6 +35,13 @@ CREATE Table trips(
     min_per_mile DECIMAL(10,2),
     fare_per_min DECIMAL(10,2),
 
+    fare_per_mile DECIMAL(10,2),
+    pickup_date DATE,
+    pickup_hour TINYINT,
+    pickup_dow TINYINT,
+    is_weekend TINYINT(1),
+    is_flat_fare TINYINT(1),
+
     FOREIGN KEY (pickup_zone_id)
     REFERENCES zones(location_id),
 
