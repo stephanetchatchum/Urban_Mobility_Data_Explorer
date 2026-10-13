@@ -8,6 +8,13 @@ CREATE Table zones(
     service_zone VARCHAR(30)
 );
 
+CREATE Table zone_shapes(
+    location_id INT PRIMARY KEY,
+    geojson JSON,
+
+    Foreign Key (location_id) REFERENCES zones(location_id)
+);
+
 CREATE Table payment_types(
     payment_type_id INT PRIMARY KEY,
     description VARCHAR(50)
