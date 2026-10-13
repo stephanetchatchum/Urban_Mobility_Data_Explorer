@@ -19,6 +19,13 @@ def zones():
         cursor.close()
         connect.close()
 
+SORT_COLUMNS = {
+    "time": "pickup_datetime",
+    "distance": "trip_distance",
+    "fare": "fare_amount",
+    "speed": "speed_mph",
+}
+
 @app.route("/api/trips")
 def trips():
     page = request.args.get("page",default=1, type=int)
@@ -30,10 +37,18 @@ def trips():
     min_fare = request.args.get("min_fare", default=None, type=float)
     max_fare = request.args.get("max_fare", default=None, type=float)
 
+    sort = request.args.get("sort", default="time")
+    order = request.args.get("order", default="asc")
+
     page = max(page, 1)
     per_page = min(max(per_page, 1), 200)
 
     offset = (page-1)*per_page
+
+    if sort not in SORT_COLUMNS:
+        sort = "time"
+    if order not in ("asc", "desc"):
+        order = "asc"
 
     conditions = []
     values = []
@@ -61,7 +76,7 @@ def trips():
     values.append(per_page)
     values.append(offset)
 
-    sql = ("SELECT trip_id, pickup_datetime, trip_distance, fare_amount, speed_mph ""FROM trips " + where_sql + "ORDER BY trip_id LIMIT %s OFFSET %s")
+    sql = ("SELECT trip_id, pickup_datetime, trip_distance, fare_amount, speed_mph ""FROM trips " + where_sql + "ORDER BY " + SORT_COLUMNS[sort] + " " + order + ", trip_id LIMIT %s OFFSET %s")
 
     connect = get_connection()
     cursor = connect.cursor(dictionary=True)
