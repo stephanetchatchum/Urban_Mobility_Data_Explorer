@@ -140,16 +140,6 @@
         </section>
     
 
-        <div id="hourly-chart" class="chart-area" role="status" aria-live="polite">
-                Hourly analysis will appear when the backend is connected.
-            </div>
-
-            <p class="help-text">
-                Zone-hour results should only be shown when at least 30 trips
-                support the result. The backend must apply this rule.
-            </p>
-        </section>
-
         <section class="panel" aria-labelledby="zones-title">
             <p class="eyebrow">LOCATION ANALYSIS</p>
             <h2 id="zones-title">Slowest Taxi Zones</h2>
@@ -157,7 +147,7 @@
                 Compare slow zones alongside the number of trips supporting each ranking.
             </p>
 
-            <div class="table-wrapper">
+            <div class="table-wrapper"> 
                 <table>
                     <thead>
                         <tr>
@@ -215,7 +205,12 @@
         </div>
     </footer>
 
+    <script src="js/api.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/filters.js"></script>
     <script src="js/main.js"></script>
+    
 </body>
 </html>
 
