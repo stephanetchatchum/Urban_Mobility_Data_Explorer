@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
 from backend.db import get_connection
 from backend.algorithms.custom_algorithm import MinHeap
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/api/health")
 def health():
