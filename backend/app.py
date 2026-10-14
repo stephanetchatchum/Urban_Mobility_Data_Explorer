@@ -161,5 +161,32 @@ def slowest_zones():
 
     return jsonify(slowest)
 
+@app.route("/api/insights/speed-by-hour")
+def speed_by_hour():
+    weekend = request.args.get("weekend", type=int)
+    conditions = ["pickup_hour IS NOT NULL"]
+    values = []
+    if weekend in (0,1):
+        conditions.append("is_weekend = %s")
+        values.append(weekend)
+    connect = get_connection()
+    cursor = connect.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT pickup_hour AS hour, "
+                       "AVG(speed_mph) AS avg_speed, "
+                       "COUNT(speed_mph) AS trip_count "
+                       "FROM trips WHERE " + " AND ".join(conditions) + " "
+                       "GROUP BY pickup_hour "
+                       "ORDER BY pickup_hour", tuple(values))
+        rows = cursor.fetchall()
+    finally:
+        cursor.close()
+        connect.close()
+
+    for row in rows:
+        if row["avg_speed"] is not None:
+            row["avg_speed"] = round(float(row["avg_speed"]), 2)
+    return jsonify(rows)
+
 if __name__ == "__main__":
     app.run(debug=True)
