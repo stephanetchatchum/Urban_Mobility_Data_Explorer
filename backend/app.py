@@ -188,5 +188,38 @@ def speed_by_hour():
             row["avg_speed"] = round(float(row["avg_speed"]), 2)
     return jsonify(rows)
 
+@app.route("/api/insights/cost-of-slowness")
+def cost_of_slowness():
+    weekend = request.args.get("weekend", type=int)
+    conditions = ["pickup_hour IS NOT NULL",
+                  "min_per_mile IS NOT NULL",
+                  "fare_per_min IS NOT NULL"]
+
+    values = []
+    if weekend in (0, 1):
+        conditions.append("is_weekend = %s")
+        values.append(weekend)
+
+    connect = get_connection()
+    cursor = connect.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT pickup_hour AS hour, "
+                       "AVG(min_per_mile) AS avg_min_per_mile, "
+                       "AVG(fare_per_min) AS avg_fare_per_min, "
+                       "COUNT(*) AS trip_count "
+                       "FROM trips WHERE " + " AND ".join(conditions) + " "
+                       "GROUP BY pickup_hour "
+                       "ORDER BY pickup_hour", tuple(values))
+        rows = cursor.fetchall()
+    finally:
+        cursor.close()
+        connect.close()
+
+    for row in rows:
+        for column in ("avg_min_per_mile", "avg_fare_per_min"):
+            if row[column] is not None:
+                row[column] = round(float(row[column]), 2)
+    return jsonify(rows)
+
 if __name__ == "__main__":
     app.run(debug=True)
