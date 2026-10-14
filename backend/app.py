@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from backend.db import get_connection
 from backend.algorithms.custom_algorithm import MinHeap
 from flask_cors import CORS
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -30,6 +31,16 @@ SORT_COLUMNS = {
     "speed": "speed_mph",
 }
 
+def read_date(name):
+    text = request.args.get(name)
+    if not text:
+        return None
+    try:
+        datetime.strptime(text, "%Y-%m-%d")
+    except ValueError:
+        return None
+    return text
+
 @app.route("/api/trips")
 def trips():
     page = request.args.get("page",default=1, type=int)
@@ -42,7 +53,7 @@ def trips():
     max_fare = request.args.get("max_fare", default=None, type=float)
 
     sort = request.args.get("sort", default="time")
-    order = request.args.get("order", default="asc")
+    order = request.args.get("order", default="asc")    
 
     page = max(page, 1)
     per_page = min(max(per_page, 1), 200)
@@ -56,6 +67,26 @@ def trips():
 
     conditions = []
     values = []
+
+    pickup_zone = request.args.get("pickup_zone", type=int)
+    if pickup_zone is not None:
+        conditions.append("pickup_zone_id = %s")
+        values.append(pickup_zone)
+    
+    dropoff_zone = request.args.get("dropoff_zone", type=int)
+    if dropoff_zone is not None:
+        conditions.append("dropoff_zone_id = %s")
+        values.append(dropoff_zone)
+    
+    start_date = read_date("start_date")
+    if start_date is not None:
+        conditions.append("pickup_date >= %s")
+        values.append(start_date)
+    
+    end_date = read_date("end_date")
+    if end_date is not None:
+        conditions.append("pickup_date <= %s")
+        values.append(end_date)
 
     if min_distance is not None:
         conditions.append("trip_distance >= %s")
