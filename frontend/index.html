@@ -35,7 +35,7 @@
                 <article class="metric-card">
                     <h3>Trips Analyzed</h3>
                     <p id="total-trips" class="metric-value">—</p>
-                    <p class="metric-note">Trips returned by the data service</p>
+                    <p class="metric-note">Cleaned trips behind the charts</p>
                 </article>
 
                 <article class="metric-card">
@@ -48,7 +48,7 @@
             <article class="metric-card">
                    <h3>Excluded Trips</h3>
                    <p id="excluded-trips" class="metric-value">—</p>
-                   <p class="metric-note">Records excluded by cleaning rules</p>
+                   <p class="metric-note">Rule hits that removed a record (one trip can hit several rules)</p>
             </article>
          </div>
      </section>
@@ -59,6 +59,15 @@
             <h2 id="filters-title">Filters</h2>
 
             <form id="filter-form" class="filter-grid">
+                <div class="form-group">
+                    <label for="day-type">Day type</label>
+                    <select id="day-type" name="day_type">
+                        <option value="all">All days</option>
+                        <option value="weekday">Weekdays</option>
+                        <option value="weekend">Weekends</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="hour-filter">Hour of day</label>
                     <select id="hour-filter" name="hour">
@@ -103,14 +112,14 @@
                     <button type="submit" class="button button-primary">
                         Apply Filters
                     </button>
-                    <button type="reset" id="reset-filters" class="button button-secondary">
+                    <button type="button" id="reset-filters" class="button button-secondary">
                         Reset
                     </button>
                 </div>
             </form>
 
             <p id="filter-message" class="help-text" aria-live="polite">
-                choose filters, and apply them to the available data
+                choose filters, and apply them to the available data (day type and hour change the charts, the map, the zone ranking and the trip list)
             </p>
         </section>
 
@@ -127,6 +136,7 @@
                 <span>Minutes per mile</span>
                 <span>Median speed (mph)</span>
                 <span>Fare per minute</span>
+                <span>Orange bar = the hour chosen in the filters</span>
              </div>
 
              <div id="hourly-chart" class="chart-area" role="status" aria-live="polite">
@@ -153,16 +163,163 @@
                         <tr>
                             <th scope="col">Rank</th>
                             <th scope="col">Pickup zone</th>
-                            <th scope="col">Median speed (mph)</th>
+                            <th scope="col">Speed (mph)</th>
+                            <th scope="col">Minutes per mile</th>
                             <th scope="col">Supporting trips</th>
                         </tr>
                     </thead>
                     <tbody id="zone-results">
                         <tr>
-                            <td colspan="4">Zone rankings will appear when the data is available.</td>
+                            <td colspan="5">Zone rankings will appear when the data is available.</td>
                       </tr>
                     </tbody>
                 </table>
+            </div>
+        </section>
+
+
+        <section class="panel" aria-labelledby="heatmap-title">
+            <p class="eyebrow">TIME ANALYSIS</p>
+            <h2 id="heatmap-title">When Does the City Move?</h2>
+            <p class="section-description">
+                Day of the week against hour of the day. Darker means a higher value.
+            </p>
+
+            <div class="form-group">
+                <label for="heatmap-metric">Show</label>
+                <select id="heatmap-metric">
+                    <option value="trips">Number of trips</option>
+                    <option value="speed">Average speed (mph)</option>
+                    <option value="min_per_mile">Minutes per mile</option>
+                </select>
+            </div>
+
+            <div id="heatmap" class="heatmap">Heatmap will appear when the data is available.</div>
+            <p id="heatmap-range" class="help-text"></p>
+        </section>
+
+        <section class="panel" aria-labelledby="map-title">
+            <p class="eyebrow">LOCATION ANALYSIS</p>
+            <h2 id="map-title">Slowness Map</h2>
+            <p class="section-description">
+                Pickup zones coloured by median minutes per mile for the chosen hour (8 AM when all hours are selected).
+                Grey zones have fewer than 30 trips, so we do not rank them. Click a zone for details.
+            </p>
+
+            <div id="zone-map" class="map-area">Map will appear when the data is available.</div>
+            <p id="map-info" class="help-text" aria-live="polite">Click a zone to see its numbers.</p>
+        </section>
+
+        <section class="panel" aria-labelledby="routes-title">
+            <p class="eyebrow">LOCATION ANALYSIS</p>
+            <h2 id="routes-title">Busiest Routes</h2>
+            <p class="section-description">
+                The pickup and dropoff pairs with the most trips (unknown zones left out).
+            </p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Rank</th>
+                            <th scope="col">From</th>
+                            <th scope="col">To</th>
+                            <th scope="col">Trips</th>
+                            <th scope="col">Average fare</th>
+                        </tr>
+                    </thead>
+                    <tbody id="route-results">
+                        <tr>
+                            <td colspan="5">Routes will appear when the data is available.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel" aria-labelledby="economics-title">
+            <p class="eyebrow">ECONOMICS</p>
+            <h2 id="economics-title">What Does a Ride Cost?</h2>
+            <p class="section-description">
+                Average fare, fees (tolls, taxes and surcharges) and the tip rate on card payments for each hour.
+                Cash tips are not recorded, so they are left out.
+            </p>
+
+            <div id="economics-chart" class="chart-area" role="status" aria-live="polite">
+                Economics will appear when the backend is connected.
+            </div>
+        </section>
+
+        <section class="panel" aria-labelledby="trips-title">
+            <p class="eyebrow">TRIP EXPLORER</p>
+            <h2 id="trips-title">Browse Trips</h2>
+            <p class="section-description">
+                Filter by distance, fare, date and zone. Click a column title to sort, click a trip for its details.
+            </p>
+
+            <form id="trips-form" class="filter-grid">
+                <div class="form-group">
+                    <label for="min-distance">Min distance (mi)</label>
+                    <input type="number" id="min-distance" min="0" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label for="max-distance">Max distance (mi)</label>
+                    <input type="number" id="max-distance" min="0" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label for="min-fare">Min fare ($)</label>
+                    <input type="number" id="min-fare" min="0" step="0.5">
+                </div>
+                <div class="form-group">
+                    <label for="max-fare">Max fare ($)</label>
+                    <input type="number" id="max-fare" min="0" step="0.5">
+                </div>
+                <div class="form-group">
+                    <label for="start-date">From date</label>
+                    <input type="date" id="start-date" min="2019-01-01" max="2019-01-31">
+                </div>
+                <div class="form-group">
+                    <label for="end-date">To date</label>
+                    <input type="date" id="end-date" min="2019-01-01" max="2019-01-31">
+                </div>
+                <div class="form-group">
+                    <label for="pickup-zone">Pickup zone</label>
+                    <select id="pickup-zone"><option value="">Any zone</option></select>
+                </div>
+                <div class="form-group">
+                    <label for="dropoff-zone">Dropoff zone</label>
+                    <select id="dropoff-zone"><option value="">Any zone</option></select>
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="button button-primary">Search trips</button>
+                </div>
+            </form>
+
+            <div class="table-wrapper">
+                <table id="trips-table">
+                    <thead>
+                        <tr>
+                            <th scope="col" data-sort="time">Pickup time</th>
+                            <th scope="col">From</th>
+                            <th scope="col">To</th>
+                            <th scope="col" data-sort="distance">Distance</th>
+                            <th scope="col" data-sort="duration">Minutes</th>
+                            <th scope="col" data-sort="speed">Speed</th>
+                            <th scope="col" data-sort="fare">Fare</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trip-results">
+                        <tr>
+                            <td colspan="7">Trips will appear when the data is available.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pager">
+                <button type="button" id="prev-page" class="button button-secondary">Previous</button>
+                <span id="page-label">Page 1</span>
+                <button type="button" id="next-page" class="button button-secondary">Next</button>
             </div>
         </section>
 
@@ -205,9 +362,18 @@
         </div>
     </footer>
 
+    <div id="trip-modal" class="modal" hidden>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <h3 id="modal-title">Trip details</h3>
+            <dl id="modal-details"></dl>
+            <button type="button" id="modal-close" class="button button-secondary">Close</button>
+        </div>
+    </div>
+
     <script src="js/api.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/map.js"></script>
+    <script src="js/trips.js"></script>
     <script src="js/filters.js"></script>
     <script src="js/main.js"></script>
     
