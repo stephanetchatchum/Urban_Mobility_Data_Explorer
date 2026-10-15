@@ -217,7 +217,7 @@ def slowest_zones():
     for _ in range(k):
         item = heap.pop()
         if item is None:
-            brek
+            break
         slowest.append({"zone": item[1], "avg_speed": round(item[0], 2)})
 
     return jsonify(slowest)
