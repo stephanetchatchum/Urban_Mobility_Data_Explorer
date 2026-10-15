@@ -22,3 +22,4 @@ def fetch_all(sql, params=()):
     finally:
         cursor.close()
         connect.close()
+

@@ -26,7 +26,7 @@ def read_zones():
     with open(LOOKUP_CSV, newline="", encoding="utf-8-sig") as f:
         for row in csv.DictReader(f):
             zones.append((int(row["LocationID"]), clean(row["Borough"]), clean(row["Zone"]), clean(row["service_zone"])))
-    
+
     return zones
 
 def load_all():
@@ -39,17 +39,17 @@ def load_all():
             "INSERT INTO zones (location_id, borough, zone, service_zone) "
             "VALUES (%s, %s, %s, %s) "
             "ON DUPLICATE KEY UPDATE borough = VALUES(borough), "
-            "zone = VALUES(zone), service_zone = VALUES(service_zone)", 
+            "zone = VALUES(zone), service_zone = VALUES(service_zone)",
             zones)
         cursor.executemany(
             "INSERT INTO payment_types (payment_type_id, description) "
             "VALUES (%s, %s) "
-            "ON DUPLICATE KEY UPDATE description = VALUES(description)", 
+            "ON DUPLICATE KEY UPDATE description = VALUES(description)",
             PAYMENT_TYPES)
         cursor.executemany(
             "INSERT INTO rate_codes (rate_code_id, description) "
             "VALUES (%s, %s) "
-            "ON DUPLICATE KEY UPDATE description = VALUES(description)", 
+            "ON DUPLICATE KEY UPDATE description = VALUES(description)",
             RATE_CODES)
         connect.commit()
         print("Loaded", len(zones), "zones,", len(PAYMENT_TYPES), "payment types,", len(RATE_CODES), "rate codes.")

@@ -1,0 +1,342 @@
+/* Basic page style */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #172033;
+    line-height: 1.6;
+}
+
+.container {
+    width: 92%;
+    max-width: 1100px;
+    margin: auto;
+}
+
+/* Header */
+.page-header,
+.page-footer {
+    background: #172033;
+    color: white;
+    padding: 25px 0;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+}
+
+.subtitle {
+    color: #dbeafe;
+}
+
+.eyebrow {
+    color: #2563eb;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+/* Dashboard sections */
+main {
+    padding-top: 25px;
+    padding-bottom: 25px;
+}
+
+.panel {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+h2 {
+    margin-bottom: 12px;
+}
+
+.section-description,
+.help-text,
+.metric-note {
+    color: #64748b;
+    font-size: 0.9rem;   
+}
+
+/* Summary cards */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.trust-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.metric-card,
+.trust-card {
+    background: #f8fafc;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.metric-value {
+    color: #2563eb;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* Filters */
+.filter-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
+
+select,
+button {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+}
+
+button {
+    cursor: pointer;
+}
+
+.button-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.button-secondary {
+    background: #e2e8f0;
+}
+
+/* Charts and zones table */
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.chart-area {
+    min-height: 180px;
+    padding: 20px;
+    background: #f8fafc;
+    border: 1px dashed #94a3b8;
+    text-align: center;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th,
+td {
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Footer and smaller screens */
+.page-footer{
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .summary-grid,
+    .trust-grid {
+        grid-template-columns: 1fr;
+    }
+    .filter-grid {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .page-header h1 {
+        font-size: 1.6rem;
+    }
+}
+/* Bar charts, heatmap, map, trips table and detail window */
+input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font: inherit;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+}
+
+.chart-area.loaded {
+    border-style: solid;
+    text-align: left;
+}
+
+.bar-set h3 {
+    font-size: 1rem;
+    margin: 12px 0 6px;
+}
+
+.bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 120px;
+    border-bottom: 1px solid #94a3b8;
+}
+
+.bar {
+    flex: 1;
+    background: #2563eb;
+    border-radius: 3px 3px 0 0;
+}
+
+.bar.selected {
+    background: #ea580c;
+}
+
+.bar-labels {
+    display: flex;
+    gap: 3px;
+    font-size: 11px;
+    color: #475569;
+}
+
+.bar-labels span {
+    flex: 1;
+    text-align: center;
+}
+
+.heatmap {
+    display: grid;
+    grid-template-columns: 40px repeat(24, 1fr);
+    gap: 2px;
+    margin-top: 12px;
+    font-size: 11px;
+}
+
+.heat-cell {
+    height: 28px;
+    border-radius: 3px;
+    background: #f1f5f9;
+}
+
+.heat-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+}
+
+.map-area {
+    margin-top: 12px;
+    background: #f8fafc;
+    border: 1px dashed #94a3b8;
+    padding: 10px;
+    text-align: center;
+}
+
+.map-area svg {
+    width: 100%;
+    height: auto;
+    max-height: 520px;
+}
+
+.map-area path:hover {
+    stroke: #172033;
+    stroke-width: 1.5;
+    cursor: pointer;
+}
+
+#trips-table th[data-sort] {
+    cursor: pointer;
+}
+
+#trips-table th[data-sort]:hover {
+    background: #e2e8f0;
+}
+
+#trip-results tr {
+    cursor: pointer;
+}
+
+#trip-results tr:hover {
+    background: #f1f5f9;
+}
+
+.pager {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    z-index: 100;
+}
+
+.modal[hidden] {
+    display: none;
+}
+
+.modal-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow: auto;
+}
+
+.modal-card dl {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 6px 12px;
+    margin: 12px 0;
+    font-size: 14px;
+}
+
+.modal-card dt {
+    color: #64748b;
+}
+
+.status.ok {
+    color: #15803d;
+}

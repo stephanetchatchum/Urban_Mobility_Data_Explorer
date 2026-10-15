@@ -1,21 +1,22 @@
-# Raw data (too large for git; see README for download links)
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
+# Data (too large for Git; regenerate with the pipeline)
+data/raw/
+data/processed/
+data/logs/
+
+# Secrets and environment
+.env
+.venv/
+venv/
 
 # Python
 __pycache__/
 *.pyc
-venv/
-.venv/
+.pytest_cache/
 
-# Environment and local DB
-.env
+# Database files and local dumps of the full data
 *.db
-*.sqlite3
+database/dump/*_full*.sql
 
-# Editors / OS
-.vscode/
+# OS / editor
 .DS_Store
-node_modules/
+.vscode/

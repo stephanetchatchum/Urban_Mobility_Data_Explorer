@@ -1,3 +1,6 @@
+-- Urban Mobility Data Explorer: MySQL schema (one file: Member 2's design + the columns the pipeline output needs).
+-- Run with: python -m database.init_db schema   (add --reset to drop and rebuild)
+-- Load order: schema -> pipeline.load_to_db -> pipeline.load_extras -> database.init_db indexes
 CREATE DATABASE IF NOT EXISTS urban_mobility;
 USE urban_mobility;
 
@@ -15,7 +18,7 @@ CREATE TABLE zones (
 
 CREATE TABLE payment_types (
     payment_type_id INT PRIMARY KEY,
-    description VARCHAR(50)
+    description     VARCHAR(50)
 );
 
 CREATE TABLE rate_codes (

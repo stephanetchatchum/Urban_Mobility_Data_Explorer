@@ -60,3 +60,5 @@ if __name__ == "__main__":
         create_schema("--reset" in sys.argv)
     else:
         create_indexes()
+
+

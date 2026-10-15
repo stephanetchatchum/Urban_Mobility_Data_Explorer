@@ -7,7 +7,14 @@ ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw"
 PROCESSED_DIR = ROOT / "data" / "processed"
 LOGS_DIR = ROOT / "data" /"logs"
-DB_PATH = Path(os.environ.get("URBAN_DB_PATH", ROOT / "database" / "urban_mobility.db"))
+
+# Database connection (MySQL). The real values are set as environment variables, never typed in the code.
+DB_HOST = os.environ.get("DB_HOST", "127.0.0.1")
+DB_PORT = int(os.environ.get("DB_PORT", "3306"))
+DB_USER = os.environ.get("DB_USER", "root")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
+DB_NAME = os.environ.get("DB_NAME", "urban_mobility")
+DB_SSL_CA = os.environ.get("DB_SSL_CA")   # optional: path to the certificate file some cloud databases require
 
 # Setting a valid start date and end date from where trips should be picked up and analyse
 DATA_START = datetime(2019, 1, 1)
