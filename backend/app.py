@@ -1,11 +1,29 @@
 from flask import Flask, jsonify, request
 from backend.db import get_connection
 from backend.algorithms.custom_algorithm import MinHeap
+from backend.routes.story import story_bp
+from backend.routes.economics import economics_bp
+from backend.routes.heatmap import heatmap_bp
 from flask_cors import CORS
+from flask.json.provider import DefaultJSONProvider
 from datetime import datetime
+from decimal import Decimal
+
+class MyJSONProvider(DefaultJSONProvider):
+    # MySQL gives Decimal and datetime values, the default provider turns them into text
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return float(o)
+        if isinstance(o, datetime):
+            return o.strftime("%Y-%m-%dT%H:%M:%S")
+        return super().default(o)
 
 app = Flask(__name__)
+app.json = MyJSONProvider(app)
 CORS(app)
+app.register_blueprint(story_bp)
+app.register_blueprint(economics_bp)
+app.register_blueprint(heatmap_bp)
 
 @app.route("/api/health")
 def health():
@@ -29,6 +47,7 @@ SORT_COLUMNS = {
     "distance": "trip_distance",
     "fare": "fare_amount",
     "speed": "speed_mph",
+    "duration": "duration_min",
 }
 
 def read_date(name):
@@ -72,17 +91,22 @@ def trips():
     if pickup_zone is not None:
         conditions.append("pickup_zone_id = %s")
         values.append(pickup_zone)
-    
+
     dropoff_zone = request.args.get("dropoff_zone", type=int)
     if dropoff_zone is not None:
         conditions.append("dropoff_zone_id = %s")
         values.append(dropoff_zone)
-    
+
+    hour = request.args.get("hour", type=int)
+    if hour is not None:
+        conditions.append("pickup_hour = %s")
+        values.append(hour)
+
     start_date = read_date("start_date")
     if start_date is not None:
         conditions.append("pickup_date >= %s")
         values.append(start_date)
-    
+
     end_date = read_date("end_date")
     if end_date is not None:
         conditions.append("pickup_date <= %s")
@@ -108,27 +132,64 @@ def trips():
     if conditions:
         where_sql = "WHERE " + " AND ".join(conditions) + " "
 
+    count_values = tuple(values)
+
     values.append(per_page)
     values.append(offset)
 
-    sql = ("SELECT trip_id, pickup_datetime, trip_distance, fare_amount, speed_mph ""FROM trips " + where_sql + "ORDER BY " + SORT_COLUMNS[sort] + " " + order + ", trip_id LIMIT %s OFFSET %s")
+    sql = ("SELECT t.trip_id, t.pickup_datetime, t.trip_distance, t.duration_min, t.fare_amount, t.speed_mph, "
+           "pz.zone AS pickup_zone, dz.zone AS dropoff_zone "
+           "FROM trips t LEFT JOIN zones pz ON t.pickup_zone_id = pz.location_id "
+           "LEFT JOIN zones dz ON t.dropoff_zone_id = dz.location_id " + where_sql + "ORDER BY " + SORT_COLUMNS[sort] + " " + order + ", t.trip_id LIMIT %s OFFSET %s")
 
     connect = get_connection()
     cursor = connect.cursor(dictionary=True)
     try:
+        cursor.execute("SELECT COUNT(*) AS total FROM trips " + where_sql, count_values)
+        total = cursor.fetchone()["total"]
+
         cursor.execute(sql, tuple(values))
         rows = cursor.fetchall()
         for row in rows:
-            for column in ("trip_distance", "fare_amount", "speed_mph"):
+            for column in ("trip_distance", "duration_min", "fare_amount", "speed_mph"):
                 if row[column] is not None:
                     row[column] = float(row[column])
             if row["pickup_datetime"] is not None:
                 row["pickup_datetime"]= row["pickup_datetime"].strftime("%Y-%m-%d %H:%M:%S")
 
-        return jsonify(rows)
+        total_pages = (total + per_page - 1) // per_page
+        return jsonify({"page": page, "per_page": per_page, "total": total, "total_pages": total_pages, "data": rows})
     finally:
         cursor.close()
         connect.close()
+
+@app.route("/api/trips/<int:trip_id>")
+def trip_detail(trip_id):
+    connect = get_connection()
+    cursor = connect.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT t.*, pz.zone AS pickup_zone, pz.borough AS pickup_borough, "
+                       "dz.zone AS dropoff_zone, dz.borough AS dropoff_borough, "
+                       "pt.description AS payment_type, rc.description AS rate_code "
+                       "FROM trips t LEFT JOIN zones pz ON t.pickup_zone_id = pz.location_id "
+                       "LEFT JOIN zones dz ON t.dropoff_zone_id = dz.location_id "
+                       "LEFT JOIN payment_types pt ON t.payment_type_id = pt.payment_type_id "
+                       "LEFT JOIN rate_codes rc ON t.rate_code_id = rc.rate_code_id "
+                       "WHERE t.trip_id = %s", (trip_id,))
+        row = cursor.fetchone()
+    finally:
+        cursor.close()
+        connect.close()
+
+    if row is None:
+        return jsonify({"error": "trip not found"}), 404
+
+    for column in row:
+        if hasattr(row[column], "strftime"):
+            row[column] = str(row[column])
+        elif row[column] is not None and not isinstance(row[column], (int, str)):
+            row[column] = float(row[column])
+    return jsonify(row)
 
 @app.route("/api/zones/slowest")
 def slowest_zones():
@@ -156,10 +217,50 @@ def slowest_zones():
     for _ in range(k):
         item = heap.pop()
         if item is None:
-            break
+            brek
         slowest.append({"zone": item[1], "avg_speed": round(item[0], 2)})
 
     return jsonify(slowest)
+
+@app.route("/api/insights/top-routes")
+def top_routes():
+    n = request.args.get("n", default=10, type=int)
+    min_trips = request.args.get("min_trips", default=30, type=int)
+
+    n = min(max(n, 1), 100)
+    min_trips = max(min_trips, 1)
+
+    connect = get_connection()
+    cursor = connect.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT t.pickup_zone_id, pz.zone AS pickup_zone, t.dropoff_zone_id, dz.zone AS dropoff_zone, "
+                       "COUNT(*) AS trips, AVG(t.fare_amount) AS avg_fare, AVG(t.duration_min) AS avg_duration_min "
+                       "FROM trips t JOIN zones pz ON t.pickup_zone_id = pz.location_id "
+                       "JOIN zones dz ON t.dropoff_zone_id = dz.location_id "
+                       "WHERE pz.is_mappable = 1 AND dz.is_mappable = 1 "
+                       "GROUP BY t.pickup_zone_id, pz.zone, t.dropoff_zone_id, dz.zone "
+                       "HAVING COUNT(*) >= %s", (min_trips,))
+        rows = cursor.fetchall()
+    finally:
+        cursor.close()
+        connect.close()
+
+    # the heap gives the smallest first, so we push the trips as a negative number
+    heap = MinHeap()
+    for row in rows:
+        heap.push((-row["trips"], row))
+
+    busiest = []
+    for _ in range(n):
+        item = heap.pop()
+        if item is None:
+            break
+        route = item[1]
+        route["avg_fare"] = round(float(route["avg_fare"]), 2)
+        route["avg_duration_min"] = round(float(route["avg_duration_min"]), 2)
+        busiest.append(route)
+
+    return jsonify(busiest)
 
 @app.route("/api/insights/speed-by-hour")
 def speed_by_hour():

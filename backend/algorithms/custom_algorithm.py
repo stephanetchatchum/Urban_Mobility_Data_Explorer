@@ -46,3 +46,19 @@ class MinHeap:
                 break
 
         return smallest
+
+def k_smallest(items, k, key):
+    heap = MinHeap()
+    for item in items:
+        value = key(item)
+        if value is not None:
+            heap.push((value, item))
+
+    result = []
+    for _ in range(k):
+        popped = heap.pop()
+        if popped is None:
+            break
+        result.append(popped[1])
+
+    return result
