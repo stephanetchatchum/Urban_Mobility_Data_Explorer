@@ -97,7 +97,7 @@ CREATE TABLE zone_hour_stats (
     pickup_hour TINYINT UNSIGNED NOT NULL,
     day_type VARCHAR(8) NOT NULL,
     trips INT UNSIGNED NOT NULL,
-    mean_speed_mphn DECIMAL(8,3) NULL,
+    mean_speed_mph DECIMAL(8,3) NULL,
     median_speed_mph DECIMAL(8,3) NULL,
     median_min_per_mile DECIMAL(10,3) NULL,
     median_fare_per_min DECIMAL(10,3) NULL,

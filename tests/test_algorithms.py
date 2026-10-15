@@ -8,8 +8,8 @@ def test_heap_pops_in_ascending_order():
     values = [rng.randint(-50, 50) for _ in range(500)]
     heap = MinHeap()
     for v in values:
-        head.push((v, "zone"))
-    popped = [head.pop()[0] for _ in range(len(values))]
+        heap.push((v, "zone"))
+    popped = [heap.pop()[0] for _ in range(len(values))]
     assert popped == sorted(values)
 
 

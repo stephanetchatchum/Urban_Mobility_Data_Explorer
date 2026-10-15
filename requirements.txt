@@ -1,7 +1,4 @@
-flask>=3.0
-flask-cors>=4.0
-mysql-connector-python>=8.0
-pytest>=8.0
+
 # Python 3.10+ (tested on 3.12)
 pandas>=2.2
 numpy>=1.26
