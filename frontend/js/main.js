@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         await loadCharts();
         await loadZones();
-        await loadRoutes();
+        loadRoutes();
         await loadEconomics();
         await loadHeatmap();
         await loadTrust();
